@@ -1,8 +1,41 @@
 ﻿<Window x:Class="ROM_Demo.AngleMeasurementWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="{Binding TestName}" Height="300" Width="300" Background="Gray">
+        Title="{Binding TestName}" Height="1080" Width="1870" Background="Gray" WindowStartupLocation="CenterScreen">
+    
     <Grid>
-        <Image Source="{Binding ColorImageSource}"/>
+        <Viewbox>
+            <Image Source="{Binding ColorImageSource}" Stretch="UniformToFill"/>
+        </Viewbox>
+        <Viewbox>
+            <Image Source="{Binding BodyImageSource}" Stretch="UniformToFill"/>
+        </Viewbox>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="36" Foreground="White">TEST</TextBlock>
+            <TextBlock HorizontalAlignment="Right" Margin="0,10,10,0" FontSize="36" Foreground="White">READING</TextBlock>
+
+            <Line Grid.Row="1" Margin="10,0,0,0" X1="0" X2="300" Stroke="White" StrokeThickness="3"/>
+            <Line Grid.Row="1" HorizontalAlignment="Right" Margin="0,0,10,0" X1="0" X2="300" Stroke="White" StrokeThickness="3"/>
+
+            <TextBlock Grid.Row="2" HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="24" FontWeight="Bold" Foreground="White">RANGE OF MOTION</TextBlock>
+            <TextBlock Grid.Row="2" Grid.RowSpan="2" HorizontalAlignment="Right" Margin="0,10,10,0" FontSize="72" Foreground="White" Text="{Binding RecordingResult}"/>
+
+            <TextBlock Grid.Row="3" HorizontalAlignment="Left" Margin="10,10,0,0" FontSize="24" Foreground="White" Text="{Binding TestName}"/>
+
+            <DockPanel Grid.Row="4">
+                <Image DockPanel.Dock="Left" Height="70" HorizontalAlignment="Left" VerticalAlignment="Bottom" Source="Assets/Images/PhysmodoLogo.png"/>
+                <Button DockPanel.Dock="Right" Width="220" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10" FontSize="48" Foreground="White" Background="Lime">ACCEPT</Button>
+                <Button DockPanel.Dock="Right" Width="220" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10" FontSize="48" Foreground="White" Background="DarkCyan">REPEAT</Button>
+                <Button DockPanel.Dock="Right" Width="220" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,10" FontSize="48" Foreground="White" Background="{x:Null}" BorderBrush="White">HELP</Button>
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

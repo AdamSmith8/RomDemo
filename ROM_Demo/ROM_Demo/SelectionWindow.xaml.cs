@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using ROM_Demo.Framework;
+using System.Globalization;
 
 namespace ROM_Demo {
 	/// <summary>
@@ -144,7 +146,7 @@ namespace ROM_Demo {
 			// Set up our local copy of the coordinate mapper
 			_coordinateMapper = _kinect.CoordinateMapper;
 			_drawingGroup = new DrawingGroup();
-			//TODO5: set skeleton image source to new DrawingImage(_drawingGroup);
+			DrawingImage.Source = new DrawingImage(_drawingGroup);
 
 			// Cache the body frame source
 			BodyFrameSource bfs = _kinect.BodyFrameSource;
@@ -155,6 +157,11 @@ namespace ROM_Demo {
 
 		private void LoadMeasurementModels() {
 			_measurementModels.Add(new RightElbowModel(_colorFrameWidth, _colorFrameHeight));
+			_measurementModels.Add(new LeftElbowModel(_colorFrameWidth, _colorFrameHeight));
+			_measurementModels.Add(new RightKneeModel(_colorFrameWidth, _colorFrameHeight));
+			_measurementModels.Add(new LeftKneeModel(_colorFrameWidth, _colorFrameHeight));
+			_measurementModels.Add(new LowerBackModel(_colorFrameWidth, _colorFrameHeight));
+			_measurementModels.Add(new UpperNeckModel(_colorFrameWidth, _colorFrameHeight));
 		}
 
 		private void InitializeLayout() {
@@ -271,7 +278,72 @@ namespace ROM_Demo {
 		/// Raised when we have received a body/skeleton frame for usage.
 		/// </summary>
 		private void BodyFrame_Arrived(object sender, BodyFrameArrivedEventArgs e) {
-			//throw new NotImplementedException();
+			var fr = e.FrameReference;
+
+			if (fr == null)
+				return;
+
+			var frame = fr.AcquireFrame();
+
+			if (frame == null)
+				return;
+
+			using (frame) {
+				frame.GetAndRefreshBodyData(_bodies);
+
+				if (_measurementWindow != null && _measurementWindow.IsActive) {
+					var q = _bodies.Where(b => b.IsTracked);
+					if (q.Count() > 0) {
+						_measurementModels[_measurementWindow.ModelIndex].UpdateBodyFrame(q.First(), _coordinateMapper);
+					}
+				}
+				else {
+					using (var dc = _drawingGroup.Open()) {
+						dc.DrawRectangle(Brushes.Transparent, null, new Rect(0.0, 0.0, _colorFrameWidth, _colorFrameHeight));
+
+						foreach (var body in _bodies.Where(b => b.IsTracked)) {
+							var t = _coordinateMapper.MapCameraPointToColorSpace(body.Joints[JointType.ElbowRight].Position);
+							var rightElbowPoint = new Point(t.X, t.Y);
+							dc.DrawText(new FormattedText("Right Elbow", CultureInfo.GetCultureInfo("en-us"), System.Windows.FlowDirection.LeftToRight, new Typeface("Segoe UI"), 36, Brushes.Black), rightElbowPoint);
+
+
+							// Torso
+							BodyDrawing.DrawBone(body.Joints[JointType.Head], body.Joints[JointType.Head], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.Neck], body.Joints[JointType.SpineShoulder], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.SpineMid], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineMid], body.Joints[JointType.SpineBase], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.ShoulderRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineShoulder], body.Joints[JointType.ShoulderLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineBase], body.Joints[JointType.HipRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.SpineBase], body.Joints[JointType.HipLeft], _coordinateMapper, dc, 80);
+
+							// Left Arm
+							BodyDrawing.DrawBone(body.Joints[JointType.ShoulderLeft], body.Joints[JointType.ElbowLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.ElbowLeft], body.Joints[JointType.WristLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.WristLeft], body.Joints[JointType.HandLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.HandLeft], body.Joints[JointType.HandTipLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.WristLeft], body.Joints[JointType.ThumbLeft], _coordinateMapper, dc, 80);
+
+							// Right Arm
+							BodyDrawing.DrawBone(body.Joints[JointType.ShoulderRight], body.Joints[JointType.ElbowRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.ElbowRight], body.Joints[JointType.WristRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.WristRight], body.Joints[JointType.HandRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.HandRight], body.Joints[JointType.HandTipRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.WristRight], body.Joints[JointType.ThumbRight], _coordinateMapper, dc, 80);
+
+							// Left Leg
+							BodyDrawing.DrawBone(body.Joints[JointType.HipLeft], body.Joints[JointType.KneeLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.KneeLeft], body.Joints[JointType.AnkleLeft], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.AnkleLeft], body.Joints[JointType.FootLeft], _coordinateMapper, dc, 80);
+
+							// Right Leg
+							BodyDrawing.DrawBone(body.Joints[JointType.HipRight], body.Joints[JointType.KneeRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.KneeRight], body.Joints[JointType.AnkleRight], _coordinateMapper, dc, 80);
+							BodyDrawing.DrawBone(body.Joints[JointType.AnkleRight], body.Joints[JointType.FootRight], _coordinateMapper, dc, 80);
+						}
+					}
+				}
+			}
 		}
 	}
 }

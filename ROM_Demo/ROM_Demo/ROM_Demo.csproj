@@ -57,10 +57,16 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AngleMeasurementModel.cs" />
+    <Compile Include="AngleMeasurementModels\LeftElbowModel.cs" />
+    <Compile Include="AngleMeasurementModels\LeftKneeModel.cs" />
+    <Compile Include="AngleMeasurementModels\UpperNeckModel.cs" />
+    <Compile Include="AngleMeasurementModels\LowerBackModel.cs" />
     <Compile Include="AngleMeasurementModels\RightElbowModel.cs" />
+    <Compile Include="AngleMeasurementModels\RightKneeModel.cs" />
     <Compile Include="AngleMeasurementWindow.xaml.cs">
       <DependentUpon>AngleMeasurementWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Framework\BodyDrawing.cs" />
     <Compile Include="SelectionWindow.xaml.cs">
       <DependentUpon>SelectionWindow.xaml</DependentUpon>
     </Compile>
